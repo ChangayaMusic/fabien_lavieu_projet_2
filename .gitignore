@@ -1,0 +1,5 @@
+venv/*
+images/*
+.idea
+banane
+*.csv
