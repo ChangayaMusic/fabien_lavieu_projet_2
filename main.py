@@ -28,3 +28,6 @@ if __name__ == '__main__':
         writer = DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(data)
+        
+
+
