@@ -1,13 +1,13 @@
 from csv import DictWriter
-from requests import get
+import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
-url = 'http://books.toscrape.com/catalogue/category/books/sequential-art_5/'
+
 
 def get_book_data(url):
 
     print(url)
-    response = get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     table = soup.find('table')
     rows = table.find_all('tr')
@@ -29,20 +29,26 @@ def csv():
         writer.writeheader()
         writer.writerow(data)
 
-def nextpage():
-    url_a = ""
-    url_c = url + url_a
-    print(url_c)
-    response_c = get(url_c)
-    print(response_c)
-    soup_c = BeautifulSoup(response_c.content, 'html.parser')
-    quantity = soup_c.find(class_="next")
-    print(type(quantity))
-    next_page = quantity.find('a').get("href")
-    print(quantity)
-    print(next_page)
-    url_ = next_page
+
+url = 'http://books.toscrape.com/catalogue/category/books/sequential-art_5/'
+cat_url = []
+
+while True:
+    cat_url.append(url)
+    response = requests.get(url)
+    print(response)
+    soup_url = BeautifulSoup(response.content, "html.parser")
+    footer = soup_url.select_one('li.current')
+    print(footer.text.strip())
+    next_page = soup_url.select_one('li.next>a')
+    if next_page:
+        next_url = next_page.get('href')
+        url = urljoin(url, next_url)
+        print(url)
 
 
+    else:
+        break
 
-nextpage()
+
+print(cat_url)
