@@ -2,12 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-url = 'http://books.toscrape.com/catalogue/category/books/sequential-art_5/'
+url = 'http://books.toscrape.com/catalogue/category/books/mystery_3/'
 next_page_url = []
 product_links = []
 def get_book_data():
 
     print(url)
+    response = requests.get(url)
+    print(response)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    table = soup.find('table')
+    rows = table.find_all('tr')
+    titre = soup.find('h1').text
+    print(titre)
 
 
 
@@ -28,8 +35,9 @@ def get_all_products_links():
 
     for h3 in h3_tags:
         href = h3.a['href']
+        href = href[9:]
         print(href)
-        product_link = url + href
+        product_link = "http://books.toscrape.com/catalogue/" + href
         product_links.append(product_link)
         print(product_link)
 
@@ -43,6 +51,7 @@ while True:
     next_page = soup.select_one('li.next>a')
     if next_page:
         next_url = next_page.get('href')
+        print(next_url)
         url = urljoin(url, next_url)
         print(url)
     else:
@@ -54,9 +63,7 @@ for i in next_page_url:
     get_all_products_links()
 print(product_links)
 
-for bk in product_links:
-    url = bk
-    get_book_data()
+
 
 
 
