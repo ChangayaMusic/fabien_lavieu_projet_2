@@ -1,32 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import csv
+from csv import DictWriter
 
 url = 'http://books.toscrape.com/catalogue/category/books/mystery_3/'
 next_page_url = []
 product_links = []
+informations_list = []
+
 def get_book_data():
 
-    print(url)
     response = requests.get(url)
-    print(response)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    table = soup.find('table')
-    rows = table.find_all('tr')
-    titre = soup.find('h1').text
-    print(titre)
+    soup = BeautifulSoup(response.text, "html.parser")
+    table = soup.find("table", class_="table table-striped")
+    informations = []
 
+    for row in table.find_all("tr"):
 
+        type = row.find('th').text
+        info = row.find('td').text
+        informations.append(info)
+    informations_list.append(informations)
 
-#if __name__ == '__main__':
-def csv():
-    data = get_book_data(url)
-    with open('informations.csv', "w", newline="") as csvfile:
-        fieldnames = data.keys()
-        writer = DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(data)
+    print(informations)
 
+def scrap_to_csv():
+    with open("v3.csv", "w", newline="") as csv_file:
+        print(informations_list)
+        header = ['UPC', 'Product Type', 'Price (excl. tax)', 'Price (incl. tax)', 'Tax', 'Availability',
+                  'Number of reviews']
+        writer = csv.writer(csv_file)  # create a DictWriter object with the header list as fieldnames
+        writer.writerow(header)  # write the header to the csv file
+        writer.writerows(informations_list)
 
 
 def get_all_products_links():
@@ -62,6 +68,24 @@ for i in next_page_url:
     url = i
     get_all_products_links()
 print(product_links)
+
+for p in product_links:
+    url = p
+
+    get_book_data()
+
+scrap_to_csv()
+
+
+
+
+
+
+
+
+
+
+
 
 
 
