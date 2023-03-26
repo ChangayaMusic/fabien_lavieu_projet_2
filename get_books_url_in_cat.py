@@ -19,7 +19,7 @@ def get_all_products_links():
         print(product_link)
 
 get_all_products_links()
-print(product_links)
+print()
 
 
 

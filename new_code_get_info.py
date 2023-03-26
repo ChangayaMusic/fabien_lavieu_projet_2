@@ -9,9 +9,9 @@ product_links = []
 informations_list = []
 links_words = []
 
-url = "http://books.toscrape.com/catalogue/1st-to-die-womens-murder-club-1_2/index.html"
+url = "http://books.toscrape.com/catalogue/alice-in-wonderland-alices-adventures-in-wonderland-1_5/index.html"
 
-def get_book_data_to_csv():
+def get_book_data():
 
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -44,7 +44,10 @@ def get_book_data_to_csv():
     image_url = urljoin(url, image["src"])
 
     description = soup.find("div", id="product_description")
-    product_description = description.find_next_sibling("p").text
+    if description is not None:  # check if description is not None
+        product_description = description.find_next_sibling("p").text
+    else:
+        product_description = ""  # assign an empty string or some default value
 
 
 

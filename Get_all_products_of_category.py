@@ -10,6 +10,7 @@ product_links = []
 informations_list = []
 info_list = []
 links_words = []
+img_download
 def get_book_data():
 
     response = requests.get(url)

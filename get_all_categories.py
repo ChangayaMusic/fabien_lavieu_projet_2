@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 
 category_links_list = []
@@ -25,14 +26,20 @@ for e in nav:
     #print(link_category)
 category_links_list = category_links_list[1:51]
 category_name_list = category_name_list[1:51]
-print(category_links_list)
+
 
 category_dict= dict(zip(category_name_list,category_links_list))
+with open("categories.csv", "w", newline="") as csv_file:
+
+
+    print(category_links_list)
+    writer = csv.writer(csv_file)
+    writer.writerow(category_links_list)
 
 #print(category_name_list)
 #print(("------------------------------------------------------"))
 
-print(category_dict)
+
 
 
 
@@ -43,6 +50,18 @@ print(category_dict)
 
 #rint(h3_tags)
 #print(len(h))
+
+
+
+
+        #product_link = "http://books.toscrape.com/catalogue/" + href
+        #product_links.append(product_link)
+        #print(product_link)
+
+
+    #rint(h3_tags)
+    #print(len(h))
+
 
 
 
