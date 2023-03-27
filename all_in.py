@@ -25,8 +25,8 @@ def get_all_categories_links():
     soup = BeautifulSoup(response.text, "html.parser")
     nav_tags = soup.find(class_="nav nav-list")
     nav = nav_tags.find_all('a')
-    nav = nav[1:]
-    # print(nav)
+
+    print(nav)
 
     for e in nav:
         # print(e)
@@ -50,7 +50,7 @@ def get_all_pages():
         next_page_url = []
         all_pages_categorie = []
         url = cat_link
-        csv_name = url[51:].replace("/index.html", "") + ".csv"
+        csv_name = url[51:].replace("/index.html", "")
 
 
         while True:
@@ -69,7 +69,7 @@ def get_all_pages():
                 url = urljoin(url, next_url)
                 print(url)
             else:
-                categorie_name = csv_name[:-6]
+                categorie_name = csv_name
                 categories_links_dict[categorie_name] = next_page_url
                 break
 
@@ -84,16 +84,19 @@ def get_all_products_links():
     pages_links = []
     categories_keys = []
     categorie_to_download = ""
-    csv_name = categorie_to_download+".csv"
+
+
 
 
     for key in categories_links_dict:
         categories_keys.append(key)
+
+
     for index, value in enumerate(categories_keys):
         print(index, value)
-    my_index = int(input('Please choose an index for my list: (13 default is select all) '))
+    my_index = int(input('Please choose an index for my list: ( 0 to select all) '))
     categorie_to_download = categories_keys[my_index]
-
+    print(categories_keys)
     print("WE ARE SCRAPING :")
     print(categorie_to_download)
 
@@ -110,14 +113,18 @@ def get_all_products_links():
         h3_tags = soup.find_all('h3')
         for h3 in h3_tags:
             href = h3.a['href']
-            href = href[9:]
 
+            href = href.replace("../", "")
+            print(href)
             product_link = "http://books.toscrape.com/catalogue/" + href
             print(product_link)
             product_links.append(product_link)
 
     for pr_l in product_links:
         links_to_scrap.append(pr_l)
+
+    print(links_to_scrap)
+
 def get_book_data():
 
     informations_list = []
@@ -136,8 +143,13 @@ def get_book_data():
 
             links_words.append(link.string)
         #print(links_words)
-        category = links_words[3]
-        print(category)
+
+        if len(links_words) > 3:
+            category = links_words[3]
+        else:
+            category = "all books"
+
+
 
         title = soup.find('h1').text
 
@@ -145,7 +157,7 @@ def get_book_data():
         product_page_url = url
 
         informations = []
-
+        review_rating = ""
 
         ratings = soup.find_all('article', class_='product_pod')
 
@@ -154,9 +166,13 @@ def get_book_data():
             stars = article.find('p')
             review_rating = stars['class'][1]
 
-        image = soup.find("img", class_="thumbnail")
-        image_url = urljoin(url, image["src"])
-        images_urls.append(image_url)
+        img_soup = BeautifulSoup(response.content, "html.parser")
+
+        img_src = img_soup.find("img")["src"]
+        img_url = "http://books.toscrape.com/"+ img_src
+        print(img_url)
+        images_urls.append(img_url)
+
         description = soup.find("div", id="product_description")
         if description is not None:
             product_description = description.find_next_sibling("p").text
@@ -182,7 +198,7 @@ def get_book_data():
         info_list.append(product_page_url)
         info_list.append(review_rating)
         info_list.append(product_description)
-        info_list.append(image_url)
+        info_list.append(img_url)
         info_list.append(universal_product_code)
         info_list.append(price_excluding_tax)
         info_list.append(price_including_tax)
@@ -193,7 +209,7 @@ def get_book_data():
         #print(review_rating)
         #print(img_url)
 
-    csv_title = category + ".csv"
+        csv_title = category + ".csv"
 
     with open(csv_title, "w", newline="", encoding="utf-8") as csv_file:
 
