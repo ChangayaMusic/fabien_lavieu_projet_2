@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import csv
 import os
+import sys
 
 
 categories_links = []
@@ -298,19 +299,16 @@ def what_to_do():
                 print("Images scraped :")
                 print(len(images_urls))
                 answer_loop()
-                break
+
 def answer_loop():
-    answer = input("Do you want scrap book(s) again? (yes/no) ")
-    if answer.lower() != "y":
-        what_to_do()
+    answer = input('Do you want tu run again ? (yes/no) ')
+    if answer == 'yes': what_to_do()
     else:
-        print("see you later")
-
-
-
+        sys.exit()
 
 
 what_to_do()
+
 
 
 
