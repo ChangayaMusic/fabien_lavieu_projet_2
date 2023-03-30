@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import csv
 import os
-import sys
+
 
 
 categories_links = []
@@ -232,7 +232,7 @@ def get_book_data():
         #print(informations_list)
 
         header = ['Title', 'Product_page_url', 'Review_rating', 'Product_description', 'image_url', 'UPC',
-                   'Price (excl. tax)', 'Price (incl. tax)', 'Availability']
+                   'Price (excl. tax)', 'Price (incl. tax)', 'Availability', 'Category']
 
         writer = csv.writer(csv_file)
         writer.writerow(header)
@@ -279,37 +279,46 @@ def what_to_do():
                 print("Images scraped :")
                 print(len(images_urls))
             else:
-                get_all_categories_links()
-                print(categories_links)
-                print("CATEGORIES LINKS READY")
-                get_all_pages()
-                print("OTHERS PAGES LINKS READY")
-                print(categories_links_dict)
+                answer2 = input('Do scrap all the categories? (yes/no) ')
+                if answer2 == 'yes':
+                    import scrap_all_individual
+                    if __name__ == '__main__':
+                        scrap_all_individual
 
-                get_all_products_links()
-                print(links_to_scrap)
-                print(len(links_to_scrap))
-                print(categorie_to_download)
-                print("ALL LINKS READY")
-                get_book_data()
-                print(links_words)
-                download_images()
-                print("Books scraped :")
-                print(len(links_to_scrap))
-                print("Images scraped :")
-                print(len(images_urls))
-                answer_loop()
+                else:
+                    get_all_categories_links()
+                    print(categories_links)
+                    print("CATEGORIES LINKS READY")
+                    get_all_pages()
+                    print("OTHERS PAGES LINKS READY")
+                    print(categories_links_dict)
 
+                    get_all_products_links()
+                    print(links_to_scrap)
+                    print(len(links_to_scrap))
+                    print(categorie_to_download)
+                    print("ALL LINKS READY")
+                    get_book_data()
+                    print(links_words)
+                    download_images()
+                    print("Books scraped :")
+                    print(len(links_to_scrap))
+                    print("Images scraped :")
+                    print(len(images_urls))
+                    answer_loop()
+                    break
 def answer_loop():
-    answer = input('Do you want tu run again ? (yes/no) ')
-    if answer == 'yes': what_to_do()
+    answer = input("Do you want scrap book(s) again? (yes/no) ")
+    if answer.lower() != "y":
+        what_to_do()
     else:
-        sys.exit()
+        print("see you later")
+
+
+
 
 
 what_to_do()
-
-
 
 
 
