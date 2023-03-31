@@ -1,5 +1,6 @@
 venv/*
 images/*
 .idea
-banane
 *.csv
+data/*
+
