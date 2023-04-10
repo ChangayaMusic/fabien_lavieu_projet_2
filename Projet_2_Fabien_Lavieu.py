@@ -27,7 +27,6 @@ def is_valid_url(url):
 def get_all_categories_links():
     global categories_links_dict
     categories_dict = {}
-    categories_keys = []
     category_links_list = []
     category_name_list = []
     url = 'http://books.toscrape.com/'
@@ -59,43 +58,44 @@ def get_all_categories_links():
 
     if my_index == 50:
         categories_links_dict = categories_dict
-        print("The new dictionary is:", categories_links_dict)
+        print("We are scraping all categories")
     else:
         index = int(my_index)
         if my_index < len(categories_dict):
             key = list(categories_dict.keys())[index]
             value = categories_dict[key]
             categories_links_dict = {key: value}
-            print("The new dictionary is:", categories_links_dict)
+            print("We are scraping:", categories_links_dict)
         else:
             print("The index is out of range.")
 
 def get_all_pages():
 
+    print("Looking for next pages")
+
     informations_list = []
-    key_list = []
+
 
     global categories_links_dict_all_pages
 
 
     for key in categories_links_dict: # get links for each category in the dict
 
-        key_list =[]
+
         next_page_url = []
         all_pages_categorie = []
-        print(categories_links_dict[key])
+
         url = "".join(categories_links_dict[key])
         next_page_url.append(url)
 
-        print(url)
-        key_list.append(key)
+
+
 
         csv_name = url[51:].replace("/index.html", "")
 
         while True: # while true go to next page
 
             response = requests.get(url)
-            #print(response)
             soup = BeautifulSoup(response.content, "html.parser")
             footer = soup.select_one('li.current')
 
@@ -103,20 +103,21 @@ def get_all_pages():
 
             if next_page:
                 next_url = next_page.get('href')
-                #print(next_url)
                 url = urljoin(url, next_url)
                 next_page_url.append(url)
-                #print(url)
 
             else:
                 categorie_name = csv_name
 
                 break
+        print(next_page_url)
 
         categories_links_dict[key] = next_page_url
         categories_links_dict_all_pages = categories_links_dict # add result to a dict
 
 def get_all_products_links():
+
+    print("Looking for all products pages2")
 
     global full_dict
     global product_links
@@ -125,7 +126,7 @@ def get_all_products_links():
     for key in categories_links_dict_all_pages:
 
         product_links = []
-        pages_links = []
+
         for l in categories_links_dict_all_pages[key]:
 
             url = l
@@ -145,20 +146,19 @@ def get_all_products_links():
                 product_links.append(product_link)
         full_dict[key]=product_links # save cleans urls to a dict
     print("######################################################")
-    print(full_dict)
+
 
 def get_book_data(): # get all data from a book page
 
     links_words = []
     global images_dict
-    print(full_dict)
+
     for key in full_dict : # create a folder for each category
         images_dict[key] = key
         images_urls = []
         informations_list = []
 
         links_to_scrap = full_dict[key]
-        print(links_to_scrap)
         print(key)
         folder_csv = "data/" + key + "/"
         os.makedirs(folder_csv, exist_ok=True)
@@ -208,7 +208,7 @@ def get_book_data(): # get all data from a book page
 
             img_src = img_soup.find("img")["src"] #get image url
             img_url = "http://books.toscrape.com/"+ img_src
-            images_urls.append(img_url)            #print(img_url)
+            images_urls.append(img_url)
 
 
             description = soup.find("div", id="product_description")
@@ -235,16 +235,12 @@ def get_book_data(): # get all data from a book page
                          number_available, category]
 
             informations_list.append(info_list)
-            #4print(informations)
-            #print(review_rating)
-            print(img_url)
+
             counter = counter + 1
 
         images_dict[key] = images_urls
     #create CSV
         with open(csv_title, "w", newline="", encoding="utf-8") as csv_file:
-
-            #print(informations_list)
 
             header = ['Title', 'Product_page_url', 'Review_rating', 'Product_description',
                       'image_url', 'UPC', 'Price (excl. tax)', 'Price (incl. tax)',
@@ -335,9 +331,6 @@ def get_data_single_book():
                  number_available, category]
 
     informations_list.append(info_list)
-    # 4print(informations)
-    # print(review_rating)
-    print(img_url)
 
     folder_csv = "data/" + title + "/"
     os.makedirs(folder_csv, exist_ok=True)
@@ -349,7 +342,6 @@ def get_data_single_book():
 
 # create CSV
     with open(csv_title, "w", newline="", encoding="utf-8") as csv_file:
-        # print(informations_list)
 
         header = ['Title', 'Product_page_url', 'Review_rating', 'Product_description',
                   'image_url', 'UPC', 'Price (excl. tax)', 'Price (incl. tax)',
@@ -364,8 +356,9 @@ def get_data_single_book():
     get_img()
 
 def get_img():
-    print(images_dict)
+
     for key in images_dict:
+        print("######################################################################")
         print(key)
 
         counter_img = 1
@@ -373,7 +366,7 @@ def get_img():
         for i in images_dict[key]: #download images
 
             url = i
-            print(url)
+           
             response = requests.get(url)
             folder = "data/" + key + "/" + "images/" #define file structure
 
@@ -398,16 +391,10 @@ def individuals_categories(): # function to use in main scrip
     print("------------------------------")
 
     get_all_products_links()
-    get_book_data()
-
-
-def get_one_categorie():
-    get_all_categories_links()
-    get_all_pages()
     print("------------------------------")
-    get_all_products_links()
     get_book_data()
-    get_img()
+    print("------------------------------")
+    menu()
 
 def selection(): # ask what to do and return a choice
     print(
