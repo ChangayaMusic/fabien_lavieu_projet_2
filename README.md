@@ -28,7 +28,7 @@ Nous allons devoir interroger un site en temps réel, une connexion internet est
 ## Démarrage
 
 - Dans la console : python3 main.py
-- Vous serez interrogé à chaque étape qui suivent sur les actions que vous voulez effectuer.
+- Vous serez interrogé à chaque étapes qui suivent sur les actions que vous voulez effectuer.
 - Scraper un livre
 - Scraper toutes les catégories
 - Scrapper une seule catégorie

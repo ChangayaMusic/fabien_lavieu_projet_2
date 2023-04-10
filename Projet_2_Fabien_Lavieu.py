@@ -415,7 +415,7 @@ def menu(): # get the choice and run the appropriate function
            }
 
     choice = selection()
-    while not choice.isdigit() or int(choice) < 1 or int(choice) > 5:
+    while not choice.isdigit() or int(choice) < 1 or int(choice) > 4:
         print("Invalid option")
         choice = selection()
 
