@@ -3,8 +3,8 @@
 
 [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)]
 
-Un script pour scraper les information du site : http://books.toscrape.com/
-Il est possible de scrapper : livre / categorie / tous les livres
+Un script pour scraper les informations du site : http://books.toscrape.com/
+Il est possible de scrapper : livre / categories / tous les livres
 
 ## Pour commencer
 
@@ -53,13 +53,14 @@ Nous allons devoir interroger un site en temps réel, une connexion internet est
 Les datas sont enregistrées suivant :
 - CSV : /data/"categorie"/
 - Images : /data/"categorie"/images
+- Les livres seuls seront enregistré comme /data/"titre du livre"
 
 
 
 ## Fabriqué avec
 
 
-* Pycharm 
+* Pycharm Community
 
 
 
