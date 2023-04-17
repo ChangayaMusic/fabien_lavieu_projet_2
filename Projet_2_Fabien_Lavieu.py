@@ -19,12 +19,15 @@ images_dict = {}
 images_urls = []
 
 def is_valid_url(url):
+
     try:
         response = requests.head(url)
         return response.ok
     except:
         return False
+
 def get_all_categories_links():
+
     global categories_links_dict
     categories_dict = {}
     category_links_list = []
@@ -336,11 +339,8 @@ def get_data_single_book():
     os.makedirs(folder_csv, exist_ok=True)
     csv_title = folder_csv + title + ".csv"  # csv name for each category
 
-    menu()
 
 
-
-# create CSV
     with open(csv_title, "w", newline="", encoding="utf-8") as csv_file:
 
         header = ['Title', 'Product_page_url', 'Review_rating', 'Product_description',
@@ -354,6 +354,8 @@ def get_data_single_book():
 
     images_dict = {title:images_urls}
     get_img()
+    menu()1
+
 
 def get_img():
 
