@@ -1,8 +1,10 @@
-import requests # to do url requets
+import requests # to do url requests
 from bs4 import BeautifulSoup # scraping tool
 from urllib.parse import urljoin # to generate clean urls with elements
 import csv # to create CSV files
-import os # to create folders and save img
+import os # to create folders and save data
+from slugify import slugify
+from word2number import w2n
 
 
 categories_links = []
@@ -18,7 +20,7 @@ full_dict = {}
 images_dict = {}
 images_urls = []
 
-def is_valid_url(url):
+def is_valid_url(url): # check if url is valid
 
     try:
         response = requests.head(url)
@@ -26,7 +28,7 @@ def is_valid_url(url):
     except:
         return False
 
-def get_all_categories_links():
+def get_all_categories_links(): # get all categories links
 
     global categories_links_dict
     categories_dict = {}
@@ -35,10 +37,9 @@ def get_all_categories_links():
     url = 'http://books.toscrape.com/'
 
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     nav_tags = soup.find(class_="nav nav-list")
     nav = nav_tags.find_all('a') # find all categories from nav bar
-
 
     for e in nav:
 
@@ -46,9 +47,7 @@ def get_all_categories_links():
         category_name_list.append(nav_text)      # get categories names and put in a list
         link_category = e['href'] # get then the complement of base url
         category_links_list.append([url + link_category])# combine both and add cat url to a list
-    #######
-
-
+    #
     categories_dict = dict(zip(category_name_list, category_links_list)) # add to shared dict
     print(categories_dict.keys())
     del categories_dict['Books']
@@ -72,28 +71,19 @@ def get_all_categories_links():
         else:
             print("The index is out of range.")
 
-def get_all_pages():
+def get_all_pages(): #look for other pages in a category
 
     print("Looking for next pages")
-
     informations_list = []
-
 
     global categories_links_dict_all_pages
 
-
     for key in categories_links_dict: # get links for each category in the dict
-
 
         next_page_url = []
         all_pages_categorie = []
-
         url = "".join(categories_links_dict[key])
         next_page_url.append(url)
-
-
-
-
         csv_name = url[51:].replace("/index.html", "")
 
         while True: # while true go to next page
@@ -101,7 +91,6 @@ def get_all_pages():
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
             footer = soup.select_one('li.current')
-
             next_page = soup.select_one('li.next>a')
 
             if next_page:
@@ -113,12 +102,13 @@ def get_all_pages():
                 categorie_name = csv_name
 
                 break
+
         print(next_page_url)
 
         categories_links_dict[key] = next_page_url
         categories_links_dict_all_pages = categories_links_dict # add result to a dict
 
-def get_all_products_links():
+def get_all_products_links(): # get all products links
 
     print("Looking for all products pages2")
 
@@ -135,7 +125,7 @@ def get_all_products_links():
             url = l
             print(url)
             response = requests.get(url)
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(response.content, "html.parser")
 
             h3_tags = []
             h3_tags = soup.find_all('h3')#h3 tags are the link container
@@ -173,7 +163,7 @@ def get_book_data(): # get all data from a book page
         for u in links_to_scrap: #scrap book s datas
             url = u
             response = requests.get(url)
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(response.content, "html.parser")
             table = soup.find("table", class_="table table-striped")
             print(counter, "book(s) scraped of", len(links_to_scrap))
 
@@ -189,7 +179,7 @@ def get_book_data(): # get all data from a book page
             else:
                 category = "all books"
 
-            title = soup.find('h1').text # get title
+            title = slugify(soup.find('h1').text) # get title
             print(title)
             print("###################################")
 
@@ -206,6 +196,10 @@ def get_book_data(): # get all data from a book page
 
                 stars = article.find('p')
                 review_rating = stars['class'][1]
+                review = w2n.word_to_num(review_rating)
+
+
+
 
             img_soup = BeautifulSoup(response.content, "html.parser")
 
@@ -217,23 +211,25 @@ def get_book_data(): # get all data from a book page
             description = soup.find("div", id="product_description")
 
             if description is not None: # a book has no description so need to give a value
-                product_description = description.find_next_sibling("p").text
+                product_description = slugify(description.find_next_sibling("p").text)
             else:
                 product_description = "UNAVAILABLE "
 
-            for row in table.find_all("tr"): # look all table row
+            for row in table.find_all("tr"): # look all table rows
 
                 info = row.find('td').text
 
                 informations.append(info) #send all to list
             universal_product_code = informations[0] # define which infos
             price_excluding_tax = informations[2]
+            price_excluding_tax = price_excluding_tax[1:]
             price_including_tax = informations[3]
+            price_including_tax = price_including_tax[12:]
             number_available = informations[5]
 
             info_list = []
 
-            info_list = [title, product_page_url, review_rating, product_description, img_url,
+            info_list = [title, product_page_url,review, product_description, img_url,
                          universal_product_code, price_excluding_tax, price_including_tax,
                          number_available, category]
 
@@ -273,7 +269,7 @@ def get_data_single_book():
         menu()
 
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     table = soup.find("table", class_="table table-striped")
 
 
@@ -341,7 +337,7 @@ def get_data_single_book():
 
 
 
-    with open(csv_title, "w", newline="", encoding="utf-8") as csv_file:
+    with open(csv_title, "w", newline="", encoding="utf-8") as csv_file: # crate csv
 
         header = ['Title', 'Product_page_url', 'Review_rating', 'Product_description',
                   'image_url', 'UPC', 'Price (excl. tax)', 'Price (incl. tax)',
@@ -354,10 +350,10 @@ def get_data_single_book():
 
     images_dict = {title:images_urls}
     get_img()
-    menu()1
+    menu()
 
 
-def get_img():
+def get_img(): #download images
 
     for key in images_dict:
         print("######################################################################")
@@ -404,7 +400,6 @@ def selection(): # ask what to do and return a choice
         1: Single book scrap
         2: Category(ies) scrap
         3: Exit"""
-
     )
     choice = input("Your selection ? ")
     return choice
