@@ -21,14 +21,14 @@ Nous allons devoir interroger un site en temps réel, une connexion internet est
 
 ### Installation
 
-
+- Installer l'environement virtuel avec : python3 -m venv new-env
 - Installer les packages avec pip install -r /path/to/requirements.txt
 
 
 ## Démarrage
 
-- Dans la console : python3 main.py
-- Vous serez interrogé à chaque étapes qui suivent sur les actions que vous voulez effectuer.
+- Dans la console : python3 Projet_2_Fabien_Lavieu.py
+- Vous serez interrogé sur les actions que vous voulez effectuer.
 - Scraper un livre
 - Scraper toutes les catégories
 - Scrapper une seule catégorie
@@ -53,7 +53,7 @@ Nous allons devoir interroger un site en temps réel, une connexion internet est
 Les datas sont enregistrées suivant :
 - CSV : /data/"categorie"/
 - Images : /data/"categorie"/images
-- Les livres seuls seront enregistré comme /data/"titre du livre"
+- Les livres seuls seront enregistrés comme /data/"titre du livre"
 
 
 

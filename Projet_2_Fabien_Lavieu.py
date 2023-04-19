@@ -5,6 +5,7 @@ import csv # to create CSV files
 import os # to create folders and save data
 from slugify import slugify
 from word2number import w2n
+import re
 
 
 categories_links = []
@@ -47,12 +48,10 @@ def get_all_categories_links(): # get all categories links
         category_name_list.append(nav_text)      # get categories names and put in a list
         link_category = e['href'] # get then the complement of base url
         category_links_list.append([url + link_category])# combine both and add cat url to a list
-    #
-    categories_dict = dict(zip(category_name_list, category_links_list)) # add to shared dict
-    print(categories_dict.keys())
-    del categories_dict['Books']
 
-    print(categories_dict)
+    categories_dict = dict(zip(category_name_list, category_links_list)) # add to shared dict
+
+    del categories_dict['Books']
 
     for index, value in enumerate(categories_dict):
         print(index, value)
@@ -123,7 +122,6 @@ def get_all_products_links(): # get all products links
         for l in categories_links_dict_all_pages[key]:
 
             url = l
-            print(url)
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
 
@@ -133,13 +131,12 @@ def get_all_products_links(): # get all products links
                 href = h3.a['href']
 
                 href = href.replace("../", "") # clean href
-                print(href)
+
                 product_link = "http://books.toscrape.com/catalogue/" + href
                 # combine to get clean url
                 product_links.append(product_link)
         full_dict[key]=product_links # save cleans urls to a dict
     print("######################################################")
-
 
 def get_book_data(): # get all data from a book page
 
@@ -152,13 +149,11 @@ def get_book_data(): # get all data from a book page
         informations_list = []
 
         links_to_scrap = full_dict[key]
-        print(key)
+
         folder_csv = "data/" + key + "/"
         os.makedirs(folder_csv, exist_ok=True)
         csv_title = folder_csv+ key + ".csv" # csv name for each category
         counter = 1
-
-
 
         for u in links_to_scrap: #scrap book s datas
             url = u
@@ -172,7 +167,6 @@ def get_book_data(): # get all data from a book page
             for link in links:
 
                 links_words.append(link.string)
-
 
             if len(links_words) > 3:  # all books category appear blank so we ask to correct it
                 category = links_words[3]
@@ -198,15 +192,11 @@ def get_book_data(): # get all data from a book page
                 review_rating = stars['class'][1]
                 review = w2n.word_to_num(review_rating)
 
-
-
-
             img_soup = BeautifulSoup(response.content, "html.parser")
 
             img_src = img_soup.find("img")["src"] #get image url
             img_url = "http://books.toscrape.com/"+ img_src
             images_urls.append(img_url)
-
 
             description = soup.find("div", id="product_description")
 
@@ -224,8 +214,9 @@ def get_book_data(): # get all data from a book page
             price_excluding_tax = informations[2]
             price_excluding_tax = price_excluding_tax[1:]
             price_including_tax = informations[3]
-            price_including_tax = price_including_tax[12:]
+            price_including_tax = price_including_tax[1:]
             number_available = informations[5]
+            number_available = re.sub("[^0-9]", "", number_available)
 
             info_list = []
 
@@ -283,7 +274,7 @@ def get_data_single_book():
     else:
         category = "all books"
 
-    title = soup.find('h1').text  # get title
+    title = slugify(soup.find('h1').text)  # get title
     print(title)
     print("###################################")
 
@@ -299,43 +290,43 @@ def get_data_single_book():
 
         stars = article.find('p')
         review_rating = stars['class'][1]
+        review = w2n.word_to_num(review_rating)
 
     img_soup = BeautifulSoup(response.content, "html.parser")
 
     img_src = img_soup.find("img")["src"]  # get image url
     img_url = "http://books.toscrape.com/" + img_src
-    images_urls.append(img_url)  # print(img_url)
+    images_urls.append(img_url)
 
     description = soup.find("div", id="product_description")
 
     if description is not None:  # a book has no description so need to give a value
-        product_description = description.find_next_sibling("p").text
+        product_description = slugify(description.find_next_sibling("p").text)
     else:
         product_description = "UNAVAILABLE "
 
-    for row in table.find_all("tr"):  # look all table row
+    for row in table.find_all("tr"):  # look all table rows
 
         info = row.find('td').text
-
         informations.append(info)  # send all to list
-    universal_product_code = informations[0]  # define which infos
+
+   universal_product_code = informations[0]  # define which infos
     price_excluding_tax = informations[2]
+    price_excluding_tax = price_excluding_tax[1:]
     price_including_tax = informations[3]
+    price_including_tax = price_including_tax[1:]
     number_available = informations[5]
+    number_available = re.sub("[^0-9]", "", number_available)
 
     info_list = []
-
-    info_list = [title, product_page_url, review_rating, product_description, img_url,
+    info_list = [title, product_page_url, review, product_description, img_url,
                  universal_product_code, price_excluding_tax, price_including_tax,
                  number_available, category]
 
     informations_list.append(info_list)
-
     folder_csv = "data/" + title + "/"
     os.makedirs(folder_csv, exist_ok=True)
     csv_title = folder_csv + title + ".csv"  # csv name for each category
-
-
 
     with open(csv_title, "w", newline="", encoding="utf-8") as csv_file: # crate csv
 
@@ -352,32 +343,24 @@ def get_data_single_book():
     get_img()
     menu()
 
-
 def get_img(): #download images
 
     for key in images_dict:
         print("######################################################################")
-        print(key)
-
         counter_img = 1
 
         for i in images_dict[key]: #download images
 
             url = i
-           
             response = requests.get(url)
             folder = "data/" + key + "/" + "images/" #define file structure
-
             os.makedirs(folder, exist_ok=True)  # create the folder if it does not exist
             image_name = os.path.basename(url)  # get the image name from the url
             image_path = os.path.join(folder, image_name)  # join the folder name and image name
             with open(image_path, "wb") as img:  # open the file for writing
                 img.write(response.content)  # write the image content
-
             print(counter_img, "image(s) downloaded of", len(images_dict[key]))
             counter_img = counter_img + 1
-
-
 
 
 def individuals_categories(): # function to use in main scrip
