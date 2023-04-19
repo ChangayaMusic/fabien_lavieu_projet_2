@@ -21,7 +21,7 @@ Nous allons devoir interroger un site en temps réel, une connexion internet est
 
 ### Installation
 
-- Installer l'environement virtuel avec : python3 -m venv new-env
+- Installer l'environement virtuel avec : python3 -m venv new-env puis source bin/activate
 - Installer les packages avec pip install -r /path/to/requirements.txt
 
 
